@@ -25,18 +25,24 @@ export async function loadNightsDB(): Promise<PokerNight[]> {
 
 // CREATE
 export async function addNightDB(night: PokerNight) {
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  if (!user) throw new Error("Not logged in");
+
   const { error } = await supabase.from("poker_nights").insert({
     id: night.id,
+    user_id: user.id, // <-- ADD THIS
     date_iso: night.dateISO,
     players_count: night.playersCount,
     largest_pot: night.largestPot,
     result_amount: night.resultAmount,
     night_result: night.nightResult,
-    players: night.players, // only works if you made a JSON column called players
+    players: night.players,
   });
 
   if (error) throw error;
 }
+
 
 // DELETE
 export async function deleteNightDB(id: string) {
