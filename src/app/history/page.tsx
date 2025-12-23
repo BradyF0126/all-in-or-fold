@@ -7,6 +7,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { loadNightsDB, deleteNightDB } from "@/lib/db";
 import { PokerNight } from "@/lib/types";
+
 export default function HistoryPage() {
   const router = useRouter();
 
@@ -22,18 +23,13 @@ useEffect(() => {
       return;
     }
 
-    const nights = await loadNightsDB();
-    setNights(nights);
+    const nightsFromDb = await loadNightsDB();
+    setNights(nightsFromDb);
   })();
 }, [router]);
 
-export default function HistoryPage() {
-  const [nights, setNights] = useState<PokerNight[]>([]);
-  const [query, setQuery] = useState("");
-
-  const filtered = nights.filter(n => n.dateISO.includes(query));
-
-  return (
+ const filtered = nights.filter((n) => n.dateISO.includes(query));
+  
     <main className="min-h-screen bg-emerald-950 text-white">
       <div className="mx-auto max-w-md px-5 py-8">
         <div className="flex justify-between">
