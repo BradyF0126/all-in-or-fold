@@ -1,4 +1,5 @@
 "use client";
+import { loadNightsDB, deleteNightDB } from "@/lib/db";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -9,9 +10,13 @@ export default function HistoryPage() {
   const [nights, setNights] = useState<PokerNight[]>([]);
   const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    setNights(loadNights());
-  }, []);
+useEffect(() => {
+  (async () => {
+    const nights = await loadNightsDB();
+    setNights(nights);
+  })();
+}, []);
+
 
   const filtered = nights.filter(n => n.dateISO.includes(query));
 
@@ -41,8 +46,8 @@ export default function HistoryPage() {
   );
   if (!ok) return;
 
-  deleteNight(n.id);
-  setNights(loadNights());
+  await deleteNightDB(id);
+  setNights(await loadNightsDB());
 }}
 
                 className="mt-2 text-red-400 underline">
