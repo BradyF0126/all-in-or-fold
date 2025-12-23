@@ -19,10 +19,10 @@ export default function NewPokerNightPage() {
 
   const [dateISO, setDateISO] = useState(todayISO());
   const [playersCount, setPlayersCount] = useState<number>(4);
-  const [largestPot, setLargestPot] = useState<number>(0);
+  const [largestPotStr, setLargestPotStr] = useState("");
 
   const [nightResult, setNightResult] = useState<"gain" | "loss">("gain");
-  const [resultAmount, setResultAmount] = useState<number>(0);
+  const [resultAmountStr, setResultAmountStr] = useState("");
 
   const [players, setPlayers] = useState<PlayerEntry[]>(() =>
     Array.from({ length: 4 }, (_, i) => ({ name: `Player ${i + 1}`, buyIn: 0 }))
@@ -56,10 +56,11 @@ export default function NewPokerNightPage() {
       dateISO,
       playersCount,
       players,
-      largestPot,
-      nightResult,
-      resultAmount: Math.abs(resultAmount),
+      largestPot: Number(largestPotStr || 0),
+      resultAmount: Number(resultAmountStr || 0),
+
       createdAt: Date.now(),
+      nightResult: "gain"
     };
 
     addNight(night);
@@ -94,11 +95,15 @@ export default function NewPokerNightPage() {
   Total Pot ($)
 </label>
 <input
-  type="number"
-  min={0}
-  value={largestPot}
-  onChange={e => setLargestPot(Math.max(0, Number(e.target.value) || 0))}
-  className="w-full rounded-xl bg-black/30 border border-white/10 px-3 py-2"
+  inputMode="decimal"
+  value={largestPotStr}
+  onChange={(e) => {
+    // allow blank OR numbers with optional decimal
+    const v = e.target.value;
+    if (v === "" || /^\d*\.?\d*$/.test(v)) setLargestPotStr(v);
+  }}
+  className="..."
+  placeholder="Enter total pot"
 />
 
 
@@ -116,19 +121,22 @@ export default function NewPokerNightPage() {
           <label className="block text-sm text-white/80 mb-1">
   Amount {nightResult === "gain" ? "Won" : "Lost"}
 </label>
-<div className="relative">
-  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60">
+<div className="flex items-center gap-2">
+  <div className="rounded-xl bg-black/20 border border-white/15 px-3 py-2 text-white/80 select-none">
     $
-  </span>
+  </div>
+
   <input
-    type="number"
-    min={0}
-    value={resultAmount}
-    onChange={e => setResultAmount(Math.max(0, Number(e.target.value) || 0))}
-    className="w-full pl-7 rounded-xl bg-black/30 border border-white/10 px-3 py-2"
+    inputMode="decimal"
+    value={resultAmountStr}
+    onChange={(e) => {
+      const v = e.target.value;
+      if (v === "" || /^\d*\.?\d*$/.test(v)) setResultAmountStr(v);
+    }}
+    className="w-full rounded-xl bg-black/20 border border-white/15 px-4 py-2 text-white outline-none focus:border-white/30"
+    placeholder="0.00"
   />
 </div>
-
 
           {players.map((p, i) => (
             <div key={i} className="flex gap-2">
