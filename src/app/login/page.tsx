@@ -1,4 +1,16 @@
 "use client";
+useEffect(() => {
+  (async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      router.push("/login");
+      return;
+    }
+
+    const nights = await loadNightsDB();
+    setNights(nights);
+  })();
+}, []);
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
