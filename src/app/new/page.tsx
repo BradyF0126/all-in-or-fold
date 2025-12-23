@@ -1,6 +1,5 @@
 "use client";
 import { addNightDB } from "@/lib/db";
-async function onSave() {
 
 import { useMemo, useState } from "react";
 import { addNight } from "@/lib/storage";
@@ -18,7 +17,7 @@ function todayISO() {
 
 export default function NewPokerNightPage() {
   const router = useRouter();
-
+async function onSave() {
   const [dateISO, setDateISO] = useState(todayISO());
   const [playersCount, setPlayersCount] = useState<number>(4);
   const [largestPotStr, setLargestPotStr] = useState("");
