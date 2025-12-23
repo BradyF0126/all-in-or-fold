@@ -36,9 +36,15 @@ export default function HistoryPage() {
               <div>{n.nightResult}: ${n.resultAmount}</div>
               <button
                 onClick={() => {
-                  deleteNight(n.id);
-                  setNights(loadNights());
-                }}
+  const ok = confirm(
+    "Are you sure you want to delete this poker night? This cannot be undone."
+  );
+  if (!ok) return;
+
+  deleteNight(n.id);
+  setNights(loadNights());
+}}
+
                 className="mt-2 text-red-400 underline">
                 Delete
               </button>
