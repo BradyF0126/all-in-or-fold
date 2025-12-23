@@ -1,22 +1,36 @@
 "use client";
-import { loadNightsDB, deleteNightDB } from "@/lib/db";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { deleteNight, loadNights } from "@/lib/storage";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+import { supabase } from "@/lib/supabaseClient";
+import { loadNightsDB, deleteNightDB } from "@/lib/db";
 import { PokerNight } from "@/lib/types";
+export default function HistoryPage() {
+  const router = useRouter();
+
+  const [nights, setNights] = useState<PokerNight[]>([]);
+  const [query, setQuery] = useState("");
+
+  // 🔒 AUTH CHECK
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        router.push("/login");
+        return;
+      }
+
+      const nights = await loadNightsDB();
+      setNights(nights);
+    })();
+  }, [router]);
+
 
 export default function HistoryPage() {
   const [nights, setNights] = useState<PokerNight[]>([]);
   const [query, setQuery] = useState("");
-
-useEffect(() => {
-  (async () => {
-    const nights = await loadNightsDB();
-    setNights(nights);
-  })();
-}, []);
-
 
   const filtered = nights.filter(n => n.dateISO.includes(query));
 
