@@ -1,4 +1,6 @@
 "use client";
+import { addNightDB } from "@/lib/db";
+async function onSave() {
 
 import { useMemo, useState } from "react";
 import { addNight } from "@/lib/storage";
@@ -63,8 +65,9 @@ export default function NewPokerNightPage() {
       nightResult: "gain"
     };
 
-    addNight(night);
-    router.push("/history");
+await addNightDB(night);
+router.push("/history");
+
   }
 
   return (
