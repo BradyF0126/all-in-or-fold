@@ -14,19 +14,18 @@ export default function HistoryPage() {
   const [query, setQuery] = useState("");
 
   // 🔒 AUTH CHECK
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) {
-        router.push("/login");
-        return;
-      }
+useEffect(() => {
+  (async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      router.push("/login");
+      return;
+    }
 
-      const nights = await loadNightsDB();
-      setNights(nights);
-    })();
-  }, [router]);
-
+    const nights = await loadNightsDB();
+    setNights(nights);
+  })();
+}, [router]);
 
 export default function HistoryPage() {
   const [nights, setNights] = useState<PokerNight[]>([]);
