@@ -1,7 +1,6 @@
-"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 import { supabase } from "@/lib/supabaseClient";
@@ -20,7 +19,7 @@ export default function HistoryPage() {
       const { data } = await supabase.auth.getSession();
 
       if (!data.session) {
-        router.push("/login");
+        redirect("/login");
         return;
       }
 
