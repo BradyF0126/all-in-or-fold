@@ -20,7 +20,8 @@ export default function HistoryPage() {
       const { data } = await supabase.auth.getSession();
 
       if (!data.session) {
-        redirect("/login");
+        // Use router.push in client components, redirect() is server-only
+        router.push("/login");
         return;
       }
 
@@ -46,7 +47,7 @@ export default function HistoryPage() {
     setNights(updated);
   }
 
-    return (
+  return (
     <main className="min-h-screen bg-emerald-950 text-white">
       <div className="mx-auto max-w-md px-5 py-8">
         <div className="flex justify-between">
