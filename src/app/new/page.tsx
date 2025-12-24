@@ -1,6 +1,7 @@
 "use client";
-import { addNightDB } from "@/lib/db";
-import { useEffect, useMemo, useState } from "react";
+
+import { useEffect, useState } from "react";
+import { addNight } from "@/lib/storage";
 import { PokerNight, PlayerEntry } from "@/lib/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,19 +17,20 @@ function todayISO() {
 export default function NewPokerNightPage() {
   const router = useRouter();
 
-  // === State (must be at top-level of component) ===
   const [dateISO, setDateISO] = useState(todayISO());
   const [playersCount, setPlayersCount] = useState<number>(4);
   const [largestPotStr, setLargestPotStr] = useState("");
+
   const [nightResult, setNightResult] = useState<"gain" | "loss">("gain");
   const [resultAmountStr, setResultAmountStr] = useState("");
+
   const [players, setPlayers] = useState<PlayerEntry[]>(() =>
     Array.from({ length: 4 }, (_, i) => ({ name: `Player ${i + 1}`, buyIn: 0 }))
   );
 
-  // keep players array in sync with playersCount (useEffect, not useMemo)
+  // ✅ useEffect (this is a side-effect)
   useEffect(() => {
-    setPlayers(prev => {
+    setPlayers((prev) => {
       const next = [...prev];
       if (playersCount > next.length) {
         for (let i = next.length; i < playersCount; i++) {
@@ -41,14 +43,13 @@ export default function NewPokerNightPage() {
     });
   }, [playersCount]);
 
-  const canSave = playersCount > 0 && players.every(p => p.name.trim());
+  const canSave = playersCount > 0 && players.every((p) => p.name.trim());
 
   function setPlayer(idx: number, patch: Partial<PlayerEntry>) {
-    setPlayers(prev => prev.map((p, i) => (i === idx ? { ...p, ...patch } : p)));
+    setPlayers((prev) => prev.map((p, i) => (i === idx ? { ...p, ...patch } : p)));
   }
 
-  // === Save handler (single top-level function) ===
-  async function onSave() {
+  function onSave() {
     if (!canSave) return;
 
     const night: PokerNight = {
@@ -58,11 +59,14 @@ export default function NewPokerNightPage() {
       players,
       largestPot: Number(largestPotStr || 0),
       resultAmount: Number(resultAmountStr || 0),
+
       createdAt: Date.now(),
-      nightResult, // use the state value, not a hardcoded string
+
+      // ✅ save what user selected
+      nightResult,
     };
 
-    await addNightDB(night);
+    addNight(night);
     router.push("/history");
   }
 
@@ -71,27 +75,29 @@ export default function NewPokerNightPage() {
       <div className="mx-auto max-w-md px-5 py-8">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-extrabold">New Poker Night</h1>
-          <Link href="/" className="underline text-white/80">Home</Link>
+          <Link href="/" className="underline text-white/80">
+            Home
+          </Link>
         </div>
 
         <div className="space-y-4 mt-6">
           <input
             type="date"
             value={dateISO}
-            onChange={e => setDateISO(e.target.value)}
+            onChange={(e) => setDateISO(e.target.value)}
             className="w-full rounded-xl bg-black/30 border border-white/10 px-3 py-2"
           />
 
-          <label className="block text-sm text-white/80 mb-1">Number of Players</label>
+          <label className="block text-sm text-white/80">Number of Players</label>
           <input
             type="number"
             min={1}
             value={playersCount}
-            onChange={e => setPlayersCount(Math.max(1, Number(e.target.value) || 1))}
+            onChange={(e) => setPlayersCount(Math.max(1, Number(e.target.value) || 1))}
             className="w-full rounded-xl bg-black/30 border border-white/10 px-3 py-2"
           />
 
-          <label className="block text-sm text-white/80 mb-1">Total Pot ($)</label>
+          <label className="block text-sm text-white/80">Total Pot ($)</label>
           <input
             inputMode="decimal"
             value={largestPotStr}
@@ -105,22 +111,24 @@ export default function NewPokerNightPage() {
 
           <div className="flex gap-2">
             <button
-              type="button"
               onClick={() => setNightResult("gain")}
-              className={`flex-1 py-2 rounded-xl ${nightResult === "gain" ? "bg-emerald-500/30" : "bg-black/30"}`}
+              className={`flex-1 py-2 rounded-xl ${
+                nightResult === "gain" ? "bg-emerald-500/30" : "bg-black/30"
+              }`}
             >
               Gain
             </button>
             <button
-              type="button"
               onClick={() => setNightResult("loss")}
-              className={`flex-1 py-2 rounded-xl ${nightResult === "loss" ? "bg-red-500/30" : "bg-black/30"}`}
+              className={`flex-1 py-2 rounded-xl ${
+                nightResult === "loss" ? "bg-red-500/30" : "bg-black/30"
+              }`}
             >
               Loss
             </button>
           </div>
 
-          <label className="block text-sm text-white/80 mb-1">
+          <label className="block text-sm text-white/80">
             Amount {nightResult === "gain" ? "Won" : "Lost"}
           </label>
           <div className="flex items-center gap-2">
@@ -144,21 +152,24 @@ export default function NewPokerNightPage() {
             <div key={i} className="flex gap-2">
               <input
                 value={p.name}
-                onChange={e => setPlayer(i, { name: e.target.value })}
+                onChange={(e) => setPlayer(i, { name: e.target.value })}
                 className="flex-1 rounded-xl bg-black/30 border border-white/10 px-3 py-2"
                 placeholder={`Player ${i + 1}`}
               />
               <input
                 type="number"
                 value={p.buyIn}
-                onChange={e => setPlayer(i, { buyIn: Number(e.target.value) })}
+                onChange={(e) => setPlayer(i, { buyIn: Number(e.target.value) })}
                 className="w-28 rounded-xl bg-black/30 border border-white/10 px-3 py-2"
                 placeholder="$"
               />
             </div>
           ))}
 
-          <button onClick={onSave} className="w-full py-3 rounded-xl bg-emerald-500/30 font-bold">
+          <button
+            onClick={onSave}
+            className="w-full py-3 rounded-xl bg-emerald-500/30 font-bold"
+          >
             Save Poker Night
           </button>
         </div>
