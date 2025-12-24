@@ -49,11 +49,20 @@ useEffect(() => {
               <div>Largest Pot: ${n.largestPot}</div>
               <div>{n.nightResult}: ${n.resultAmount}</div>
               <button
-  onClick={() => handleDelete(n.id)}
+  onClick={async () => {
+    const ok = confirm(
+      "Are you sure you want to delete this poker night? This cannot be undone."
+    );
+    if (!ok) return;
+
+    await deleteNightDB(id);              // or n.id depending on your map
+    setNights(await loadNightsDB());
+  }}
   className="mt-2 text-red-400 underline"
 >
   Delete
 </button>
+
 
             </div>
           ))}
