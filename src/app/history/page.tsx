@@ -46,7 +46,7 @@ export default function HistoryPage() {
     setNights(updated);
   }
 
-  return (
+    return (
     <main className="min-h-screen bg-emerald-950 text-white">
       <div className="mx-auto max-w-md px-5 py-8">
         <div className="flex justify-between">
@@ -59,7 +59,7 @@ export default function HistoryPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by date (YYYY-MM-DD)"
+          placeholder="Search by date"
           className="mt-4 w-full rounded-xl bg-black/30 border border-white/10 px-3 py-2"
         />
 
